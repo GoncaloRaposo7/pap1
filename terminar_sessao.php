@@ -1,0 +1,14 @@
+<?php
+// terminar-sessao.php - Logout do sistema
+require_once 'configuracao.php';
+
+// Destruir todas as variáveis de sessão
+$_SESSION = array();
+
+// Destruir a sessão
+session_destroy();
+
+// Redirecionar para a página de login
+header('Location: autenticacao.php');
+exit();
+?>
