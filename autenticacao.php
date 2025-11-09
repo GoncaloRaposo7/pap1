@@ -1,5 +1,5 @@
 <?php
-// autenticacao.php - Página de login e registo
+// autenticacao.php - Página de login e registo com design moderno
 require_once 'configuracao.php';
 
 // Se já estiver autenticado, redirecionar
@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     if (empty($email) || empty($palavra_passe) || empty($tipo)) {
         $erro = 'Preencha todos os campos.';
     } else {
-        // Determinar tabela baseada no tipo
         $tabela = '';
         switch ($tipo) {
             case 'direcao':
@@ -75,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     } elseif (strlen($palavra_passe) < 6) {
         $erro = 'A palavra-passe deve ter pelo menos 6 caracteres.';
     } else {
-        // Determinar tabela
         $tabela = '';
         switch ($tipo) {
             case 'treinador':
@@ -90,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
         
         if (empty($erro)) {
             try {
-                // Verificar se email já existe
                 $stmt = $ligacao_bd->prepare("SELECT id FROM $tabela WHERE email = ?");
                 $stmt->execute([$email]);
                 
@@ -100,7 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
                     $pass_hash = password_hash($palavra_passe, PASSWORD_DEFAULT);
                     
                     if ($tipo === 'jogador') {
-                        // Para jogador, precisa de escalão
                         $id_escalao = isset($_POST['id_escalao']) ? intval($_POST['id_escalao']) : 0;
                         if ($id_escalao <= 0) {
                             $erro = 'Selecione um escalão.';
@@ -137,30 +133,70 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autenticação - GESTTEAM</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Estilos adicionais para a página de auth */
+        .auth-logo {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
+        }
+        
+        .back-to-home {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: var(--raio);
+            transition: var(--transicao);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-to-home:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(-4px);
+        }
+    </style>
 </head>
 <body>
     <div class="contentor-autenticacao">
+        <a href="index.php" class="back-to-home">← Voltar ao Início</a>
+        
         <div class="card-autenticacao fade-in">
             <div class="logo-autenticacao">
+                <div class="auth-logo">⚽</div>
                 <h1>GESTTEAM</h1>
-                <p style="color: #64748b; margin-top: 0.5rem;">Sistema de Gestão de Clubes Desportivos</p>
+                <p style="color: #64748b; margin-top: 0.75rem; font-size: 1.0625rem;">
+                    Sistema Moderno de Gestão de Clubes
+                </p>
             </div>
 
             <?php if ($erro): ?>
                 <div class="alerta alerta-erro">
-                    <?php echo $erro; ?>
+                    <span style="font-size: 1.25rem;">⚠️</span>
+                    <span><?php echo $erro; ?></span>
                 </div>
             <?php endif; ?>
 
             <?php if ($sucesso): ?>
                 <div class="alerta alerta-sucesso">
-                    <?php echo $sucesso; ?>
+                    <span style="font-size: 1.25rem;">✅</span>
+                    <span><?php echo $sucesso; ?></span>
                 </div>
             <?php endif; ?>
 
             <div class="tabs-autenticacao">
-                <button class="tab-btn ativo" onclick="mostrarTab('login')">Entrar</button>
-                <button class="tab-btn" onclick="mostrarTab('registo')">Registar</button>
+                <button class="tab-btn ativo" onclick="mostrarTab('login')">
+                    <span style="margin-right: 0.5rem;">🔐</span> Entrar
+                </button>
+                <button class="tab-btn" onclick="mostrarTab('registo')">
+                    <span style="margin-right: 0.5rem;">📝</span> Registar
+                </button>
             </div>
 
             <!-- Formulário de Login -->
@@ -168,26 +204,32 @@ try {
                 <input type="hidden" name="acao" value="login">
                 
                 <div class="grupo-formulario">
-                    <label>Email</label>
-                    <input type="email" name="email" required>
+                    <label>📧 Email</label>
+                    <input type="email" name="email" required placeholder="seu@email.com">
                 </div>
 
                 <div class="grupo-formulario">
-                    <label>Palavra-passe</label>
-                    <input type="password" name="palavra_passe" required>
+                    <label>🔒 Palavra-passe</label>
+                    <input type="password" name="palavra_passe" required placeholder="••••••••">
                 </div>
 
                 <div class="grupo-formulario">
-                    <label>Tipo de Utilizador</label>
+                    <label>👤 Tipo de Utilizador</label>
                     <select name="tipo" required>
-                        <option value="">Selecione...</option>
-                        <option value="direcao">Direção do Clube</option>
-                        <option value="treinador">Treinador</option>
-                        <option value="jogador">Jogador</option>
+                        <option value="">Selecione o seu tipo...</option>
+                        <option value="direcao">👔 Direção do Clube</option>
+                        <option value="treinador">👨‍🏫 Treinador</option>
+                        <option value="jogador">⚽ Jogador</option>
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primario" style="width: 100%;">Entrar</button>
+                <button type="submit" class="btn btn-primario" style="width: 100%; font-size: 1.0625rem;">
+                    🚀 Entrar na Plataforma
+                </button>
+                
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--cor-texto-claro); font-size: 0.9375rem;">
+                    Ainda não tem conta? <a href="#" onclick="mostrarTab('registo'); return false;" style="color: var(--cor-primaria); font-weight: 600; text-decoration: none;">Registe-se aqui</a>
+                </p>
             </form>
 
             <!-- Formulário de Registo -->
@@ -195,38 +237,41 @@ try {
                 <input type="hidden" name="acao" value="registo">
                 
                 <div class="grupo-formulario">
-                    <label>Nome Completo</label>
-                    <input type="text" name="nome" required>
+                    <label>👤 Nome Completo</label>
+                    <input type="text" name="nome" required placeholder="João Silva">
                 </div>
 
                 <div class="grupo-formulario">
-                    <label>Email</label>
-                    <input type="email" name="email" required>
+                    <label>📧 Email</label>
+                    <input type="email" name="email" required placeholder="seu@email.com">
                 </div>
 
                 <div class="grupo-formulario">
-                    <label>Palavra-passe</label>
-                    <input type="password" name="palavra_passe" minlength="6" required>
+                    <label>🔒 Palavra-passe</label>
+                    <input type="password" name="palavra_passe" minlength="6" required placeholder="Mínimo 6 caracteres">
                 </div>
 
                 <div class="grupo-formulario">
-                    <label>Confirmar Palavra-passe</label>
-                    <input type="password" name="confirmar_senha" minlength="6" required>
+                    <label>🔐 Confirmar Palavra-passe</label>
+                    <input type="password" name="confirmar_senha" minlength="6" required placeholder="Digite novamente">
                 </div>
 
                 <div class="grupo-formulario">
-                    <label>Tipo de Utilizador</label>
+                    <label>👥 Tipo de Utilizador</label>
                     <select name="tipo" id="tipo-registo" onchange="mostrarCamposAdicionais()" required>
                         <option value="">Selecione...</option>
-                        <option value="treinador">Treinador</option>
-                        <option value="jogador">Jogador</option>
+                        <option value="treinador">👨‍🏫 Treinador</option>
+                        <option value="jogador">⚽ Jogador</option>
                     </select>
+                    <small style="display: block; margin-top: 0.5rem; color: var(--cor-texto-claro);">
+                        💡 Contas de Direção são criadas internamente
+                    </small>
                 </div>
 
                 <div class="grupo-formulario" id="campo-escalao" style="display: none;">
-                    <label>Escalão</label>
+                    <label>🏆 Escalão</label>
                     <select name="id_escalao">
-                        <option value="">Selecione...</option>
+                        <option value="">Selecione o escalão...</option>
                         <?php foreach ($escaloes as $escalao): ?>
                             <option value="<?php echo $escalao['id']; ?>">
                                 <?php echo $escalao['clube_nome'] . ' - ' . $escalao['nome']; ?>
@@ -235,8 +280,25 @@ try {
                     </select>
                 </div>
 
-                <button type="submit" class="btn btn-primario" style="width: 100%;">Registar</button>
+                <button type="submit" class="btn btn-primario" style="width: 100%; font-size: 1.0625rem;">
+                    ✨ Criar Conta Grátis
+                </button>
+                
+                <p style="text-align: center; margin-top: 1.5rem; color: var(--cor-texto-claro); font-size: 0.9375rem;">
+                    Já tem conta? <a href="#" onclick="mostrarTab('login'); return false;" style="color: var(--cor-primaria); font-weight: 600; text-decoration: none;">Entre aqui</a>
+                </p>
             </form>
+            
+            <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--cor-borda); text-align: center;">
+                <p style="color: var(--cor-texto-claro); font-size: 0.875rem; margin-bottom: 1rem;">
+                    🔒 Os seus dados estão seguros connosco
+                </p>
+                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--cor-texto-muito-claro);">
+                    <span>✓ Encriptação SSL</span>
+                    <span>✓ Privacidade Garantida</span>
+                    <span>✓ 100% Seguro</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -271,6 +333,11 @@ try {
                 campoEscalao.querySelector('select').required = false;
             }
         }
+        
+        // Animação de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.card-autenticacao').style.animation = 'fadeIn 0.6s ease-out';
+        });
     </script>
 </body>
 </html>
